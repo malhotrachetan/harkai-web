@@ -1,0 +1,13 @@
+google-cloud-texttospeech
+pydub
+moviepy
+google-generativeai
+boto3
+botocore
+gunicorn
+django-encrypted-secrets
+djangorestframework
+django-cors-headers
+channels-redis
+certifi
+azure-cognitiveservices-speech
