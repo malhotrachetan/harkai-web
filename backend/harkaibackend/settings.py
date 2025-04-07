@@ -67,22 +67,12 @@ ALLOWED_HOSTS = [
     "3.89.123.19",
     "backend.getharkai.com",
     "20.120.218.168",
-    "web.getharkai.com"
+    "web.getharkai.com",
+    "harkai-web.vercel.app"
     
 ]
 
 
-# Application definition
-
-CORS_ALLOW_HEADERS = [
-    "authorization",
-    "content-type",
-    "x-csrftoken",
-    "accept",
-    "origin",
-    "user-agent",
-    "x-requested-with",
-]
 
 INSTALLED_APPS = [
     "daphne",
@@ -232,23 +222,14 @@ REST_FRAMEWORK = {
     "FIREBASE_AUTH_EMAIL_VERIFICATION": False,
 }"""
 
+CORS_ALLOW_ALL_ORIGINS = False
 
-"""CORS_ALLOWED_ORIGINS = [
-    "http://localhost:7000",
-    "http://127.0.0.1:7000",
-    "http://127.0.0.1:8001",
-    "http://127.0.0.1:8000",
-    "http://localhost:8001",
-    "http://localhost:8000",  # Add this line
-    "http://localhost:3000",  
+CORS_ALLOWED_ORIGINS = [
+    "https://web.getharkai.com",
     "https://harkai-firebase.web.app",
-    "https://harkai-firebase.web.app/",
-    "harkai-firebase.web.app"
+    "https://harkai-web.vercel.app",
+]
 
-]"""
-
-# Add these lines
-CORS_ALLOW_ALL_ORIGINS = True 
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_METHODS = [
@@ -259,6 +240,18 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+
+CORS_ALLOW_HEADERS = [
+    "authorization",
+    "content-type",
+    "x-csrftoken",
+    "accept",
+    "origin",
+    "user-agent",
+    "x-requested-with",
+]
+
+
 
 # CELERY STUFF
 CELERY_BROKER_URL = "redis://127.0.0.1:6379"
