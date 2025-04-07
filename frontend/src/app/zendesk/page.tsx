@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import type { ChangeEvent } from 'react';
 import { useDropzone } from 'react-dropzone';
 import parse from 'html-react-parser';
 import { Flex, Box, Text } from '@radix-ui/themes';
@@ -13,25 +14,32 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { Upload, Video, Mic, Settings, HelpCircle, ExternalLink, X, Play, RefreshCw } from 'lucide-react';
 
+interface VideoMetadata {
+    name: string;
+    type: string;
+    size: number;
+    lastModified: number;
+}
+
+
 export default function Index() {
-    const [videoFile, setVideoFile] = useState(null);
-    const [originalVideoUrl, setOriginalVideoUrl] = useState(null);
-    const [processedVideoUrl, setProcessedVideoUrl] = useState(null);
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash-exp');
-    const [globalContext, setGlobalContext] = useState('');
-    const [videoContext, setVideoContext] = useState('');
-    const [steps, setSteps] = useState("");
-    const [videoMode, setVideoMode] = useState('help_center'); // 'help_center' or 'showcase'
-    const [taskId, setTaskId] = useState(null);
-    const originalVideoRef = useRef(null);
-    const [isOpen, setIsOpen] = useState(false);
-    const [helpCenterUrl, setHelpCenterUrl] = useState('');
-    const [selectedVoice, setSelectedVoice] = useState('en-US-LewisMultilingualNeural');
-    const [isPushingToHelpCenter, setIsPushingToHelpCenter] = useState(false);
-    // Using sonner toast instead of Chakra toast
-    const [apiHost, setApiHost] = useState('');
-    const [originalVideoMetadata, setOriginalVideoMetadata] = useState(null);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [originalVideoUrl, setOriginalVideoUrl] = useState<string | null>(null);
+    const [processedVideoUrl, setProcessedVideoUrl] = useState<string | null>(null);
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+    const [selectedModel, setSelectedModel] = useState<string>('gemini-2.0-flash-exp');
+    const [globalContext, setGlobalContext] = useState<string>('');
+    const [videoContext, setVideoContext] = useState<string>('');
+    const [steps, setSteps] = useState<string>('');
+    const [videoMode, setVideoMode] = useState<'help_center' | 'showcase'>('help_center');
+    const [taskId, setTaskId] = useState<string | null>(null);
+    const originalVideoRef = useRef<HTMLVideoElement | null>(null);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [helpCenterUrl, setHelpCenterUrl] = useState<string>('');
+    const [selectedVoice, setSelectedVoice] = useState<string>('en-US-LewisMultilingualNeural');
+    const [isPushingToHelpCenter, setIsPushingToHelpCenter] = useState<boolean>(false);
+    const [apiHost, setApiHost] = useState<string>('');
+    const [originalVideoMetadata, setOriginalVideoMetadata] = useState<VideoMetadata | null>(null);
 
     useEffect(() => {
         const isProduction = process.env.NODE_ENV === 'production';
@@ -45,15 +53,22 @@ export default function Index() {
         const request = indexedDB.open('HarkaiVideoDB', 1);
 
         request.onerror = (event) => {
-            console.error('IndexedDB error:', event.target.error);
+            const target = event.target as IDBOpenDBRequest;
+            if (target) {
+                console.error('IndexedDB error:', target.error);
+            } else {
+                console.error('IndexedDB error: event target is null');
+            }
         };
 
         request.onupgradeneeded = (event) => {
-            const db = event.target.result;
+            const target = event.target as IDBOpenDBRequest;
+            const db = target.result;
             if (!db.objectStoreNames.contains('videos')) {
                 db.createObjectStore('videos');
             }
         };
+
     }, []);
 
     useEffect(() => {
@@ -78,7 +93,8 @@ export default function Index() {
             // Load video from IndexedDB
             const request = indexedDB.open('HarkaiVideoDB', 1);
             request.onsuccess = (event) => {
-                const db = event.target.result;
+                const target = event.target as IDBOpenDBRequest;
+                const db = target.result;
                 const transaction = db.transaction(['videos'], 'readonly');
                 const store = transaction.objectStore('videos');
                 const getRequest = store.get('currentVideo');
@@ -116,15 +132,15 @@ export default function Index() {
         }
     }, [originalVideoUrl]);
 
-    const handleModelChange = useCallback((value) => {
+    const handleModelChange = useCallback((value: string) => {
         setSelectedModel(value);
     }, []);
 
-    const handleVoiceChange = useCallback((value) => {
+    const handleVoiceChange = useCallback((value: string) => {
         setSelectedVoice(value);
     }, []);
 
-    const onDrop = useCallback((acceptedFiles) => {
+    const onDrop = useCallback((acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
         if (file) {
             const url = URL.createObjectURL(file);
@@ -132,7 +148,7 @@ export default function Index() {
             setOriginalVideoUrl(url);
             setProcessedVideoUrl(null);
 
-            const metadata = {
+            const metadata: VideoMetadata = {
                 name: file.name,
                 type: file.type,
                 size: file.size,
@@ -141,9 +157,8 @@ export default function Index() {
             setOriginalVideoMetadata(metadata);
             localStorage.setItem('originalVideoMetadata', JSON.stringify(metadata));
 
-            // Store video in IndexedDB
             const request = indexedDB.open('HarkaiVideoDB', 1);
-            request.onsuccess = (event) => {
+            request.onsuccess = (event: any) => {
                 const db = event.target.result;
                 const transaction = db.transaction(['videos'], 'readwrite');
                 const store = transaction.objectStore('videos');
@@ -154,15 +169,15 @@ export default function Index() {
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
-        accept: 'video/*',
-        multiple: false
+        accept: { 'video/*': [] },
+        multiple: false,
     });
 
-    const handleGlobalContextChange = useCallback((event) => {
+    const handleGlobalContextChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
         setGlobalContext(event.target.value);
     }, []);
 
-    const handleVideoContextChange = useCallback((event) => {
+    const handleVideoContextChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => {
         setVideoContext(event.target.value);
     }, []);
 
@@ -234,10 +249,11 @@ export default function Index() {
         setSteps("");
         localStorage.removeItem('originalVideoMetadata');
 
-        // Clear video from IndexedDB
         const request = indexedDB.open('HarkaiVideoDB', 1);
-        request.onsuccess = (event) => {
-            const db = event.target.result;
+        request.onsuccess = (event: Event) => {
+            const target = event.target as IDBRequest;
+            if (!target) return;
+            const db = target.result as IDBDatabase;
             const transaction = db.transaction(['videos'], 'readwrite');
             const store = transaction.objectStore('videos');
             store.delete('currentVideo');
@@ -249,7 +265,8 @@ export default function Index() {
         localStorage.setItem('videoProcessingState', JSON.stringify(storedState));
     }, []);
 
-    const handleHelpCenterUrlChange = useCallback((event) => {
+
+    const handleHelpCenterUrlChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         setHelpCenterUrl(event.target.value);
     }, []);
 
@@ -267,7 +284,7 @@ export default function Index() {
         setIsPushingToHelpCenter(true);
         const formData = new FormData();
 
-        formData.append('video_url', processedVideoUrl);
+        formData.append('video_url', processedVideoUrl || '');
         formData.append('help_center_article_url', helpCenterUrl);
         formData.append('text', steps);
 
@@ -426,7 +443,7 @@ export default function Index() {
                             {/* Process Button */}
                             <Button
                                 className="bg-black text-white hover:bg-black/80 focus:bg-black/80"
-                                variant="solid"
+                                variant="default"
                                 size="sm"
                                 disabled={!videoFile || isProcessing}
                                 onClick={processVideo}
