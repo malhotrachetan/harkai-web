@@ -198,7 +198,10 @@ export default function Index() {
             const response = await fetch(`${apiHost}/processvideo/`, {
                 method: 'POST',
                 body: formData,
-                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/json",
+                }
+                //credentials: 'include',
             });
 
             if (!response.ok) {

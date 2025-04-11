@@ -4,7 +4,7 @@ tunnel:
 	ssh -i ~/.ssh/id_rsa azureuser@20.120.218.168
 
 sync:
-	rsync -i ~/.ssh/id_rsa -razP --exclude=frontend/node_modules --exclude=frontend/.cache --exclude=frontend/public --exclude=.git /Users/chetanmalhotra/Documents/Code/harkai/harkai azureuser@20.120.218.168:/home
+	rsync -i ~/.ssh/id_rsa -razP --exclude=frontend/node_modules --exclude=frontend/.cache --exclude=frontend/public --exclude=.git /Users/chetanmalhotra/Documents/Code/harkai/harkai-web azureuser@20.120.218.168:/home
 
 
 setup: set-permissions install-fish install-poetry poetry-install 

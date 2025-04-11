@@ -24,6 +24,7 @@ django.utils.encoding.smart_text = smart_str
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+print("we are on prod")
 
 """adapters = ifaddr.get_adapters()
 
@@ -222,10 +223,11 @@ REST_FRAMEWORK = {
     "FIREBASE_AUTH_EMAIL_VERIFICATION": False,
 }"""
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOWED_ORIGINS = [
+"""CORS_ALLOWED_ORIGINS = [
     "https://web.getharkai.com",
+    "web.getharkai.com",
     "https://harkai-firebase.web.app",
     "https://harkai-web.vercel.app",
 ]
@@ -249,7 +251,7 @@ CORS_ALLOW_HEADERS = [
     "origin",
     "user-agent",
     "x-requested-with",
-]
+]"""
 
 
 
