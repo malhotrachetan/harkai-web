@@ -15,6 +15,7 @@ from azure.cognitiveservices.speech import (
     CancellationReason,
     SpeechSynthesisOutputFormat,
 )
+
 from azure.cognitiveservices.speech.audio import AudioOutputConfig
 from encrypted_secrets import get_secret
 
